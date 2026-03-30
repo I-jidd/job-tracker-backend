@@ -5,3 +5,7 @@
 
 # Compiled output
 target/
+
+#postman
+.postman/
+postman/
