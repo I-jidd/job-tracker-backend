@@ -16,34 +16,38 @@ public class JwtUtil {
     private String secret;
 
     @Value("${jwt.expiration}")
-    private Long expiration;
+    private long expiration;
 
-    public String generateToken(String email){
-        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = secret.getBytes();
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public String generateToken(String email) {
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(key)
+                .signWith(getSigningKey())
                 .compact();
     }
 
-    public String extractEmail(String token){
+    public String extractEmail(String token) {
         return extractClaims(token).getSubject();
     }
 
-    public boolean isTokenValid(String token){
-        try{
+    public boolean isTokenValid(String token) {
+        try {
             return !extractClaims(token).getExpiration().before(new Date());
         } catch (Exception e) {
+            System.out.println("Token validation error: " + e.getMessage());
             return false;
         }
     }
 
-    private Claims extractClaims(String token){
-        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
+    private Claims extractClaims(String token) {
         return Jwts.parser()
-                .verifyWith(key)
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();

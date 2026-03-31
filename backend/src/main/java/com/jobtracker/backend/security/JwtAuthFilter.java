@@ -18,7 +18,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthFilter  extends OncePerRequestFilter {
+public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
@@ -27,20 +27,25 @@ public class JwtAuthFilter  extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
-            throws ServletException, IOException{
-        String authHeader = request.getHeader("Auhorization");
+            throws ServletException, IOException {
 
-        //if no token, skip to next filter
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        //extract token and email
         String token = authHeader.substring(7);
-        String email = jwtUtil.extractEmail(token);
 
-        //if valid token and user not already authenticated
+        String email = null;
+        try {
+            email = jwtUtil.extractEmail(token);
+            System.out.println("Email extracted: " + email);
+        } catch (Exception e) {
+            System.out.println("Failed to extract email: " + e.getMessage());
+        }
+
         if (email != null && jwtUtil.isTokenValid(token)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
 
@@ -53,7 +58,6 @@ public class JwtAuthFilter  extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             });
         }
-
         filterChain.doFilter(request, response);
     }
 }
