@@ -40,7 +40,6 @@ public class JwtUtil {
         try {
             return !extractClaims(token).getExpiration().before(new Date());
         } catch (Exception e) {
-            System.out.println("Token validation error: " + e.getMessage());
             return false;
         }
     }

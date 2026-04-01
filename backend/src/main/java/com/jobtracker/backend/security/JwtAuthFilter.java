@@ -41,9 +41,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String email = null;
         try {
             email = jwtUtil.extractEmail(token);
-            System.out.println("Email extracted: " + email);
         } catch (Exception e) {
-            System.out.println("Failed to extract email: " + e.getMessage());
+            return;
         }
 
         if (email != null && jwtUtil.isTokenValid(token)
