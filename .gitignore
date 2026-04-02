@@ -9,3 +9,6 @@ target/
 #postman
 .postman/
 postman/
+
+#Application Properties
+backend/src/main/resources/application.properties
